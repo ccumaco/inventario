@@ -1,5 +1,5 @@
 <template>
-    <router-link class="header" to="/">Home</router-link>
+    <router-link v-if="userStore.userData" class="header" to="/">Home</router-link>
     <div v-if="userStore.loadingSession">loading user...</div>
     <router-view v-else></router-view>
 </template>
