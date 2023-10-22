@@ -32,7 +32,6 @@
         </a-button>
       </a-form-item>
     </a-form>
-    {{ categorie }}
   </div>
 </template>
 

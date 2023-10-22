@@ -42,9 +42,7 @@ export const useDatabaseStore = defineStore("database", {
             }
         },
         async getAllProducts() {
-            if (this.products.length !== 0) {
-                return;
-            }
+            this.products = [];
 
             this.loadingDoc = true;
             try {
@@ -67,21 +65,23 @@ export const useDatabaseStore = defineStore("database", {
         },
         async addProduct(objProduct, image) {
             this.loading = true;
-            console.log(objProduct, 'objProduct');
             objProduct.short = nanoid(10);
             try {
-                const storageRef = ref(
-                    storage,
-                    `productos/${objProduct.short}`
+                let photoURL = null;
+                if (image) {
+                    const storageRef = ref(
+                        storage,
+                        `productos/${objProduct.name}-${objProduct.short}`
+                    );
+                    await uploadBytes(storageRef, image.originFileObj);
+                    photoURL= await getDownloadURL(storageRef);
+                }
+                await setDoc(
+                    doc(db, "products",
+                    `${objProduct.name}`),
+                    {...objProduct, image: photoURL}
                 );
-                await uploadBytes(storageRef, image);
-                const photoURL = await getDownloadURL(storageRef);
-                await setDoc(doc(db, "products", objProduct.short), {...objProduct, image: photoURL});
-                this.products.push({
-                    ...objProduct,
-                    id: objProduct.short,
-                    image: photoURL
-                });
+                await this.getAllProducts();
             } catch (error) {
                 console.log(error);
                 return error;
@@ -104,22 +104,31 @@ export const useDatabaseStore = defineStore("database", {
             } finally {
             }
         },
-        async updateProduct(id, objProduct) {
+        async updateProduct(id, objProduct, image) {
             this.loading = true;
             try {
                 const docRef = doc(db, "products", id);
 
                 const docSnap = await getDoc(docRef);
                 if (!docSnap.exists()) {
-                    throw new Error("no existe el doc");
+                    throw new Error("no existe el producto");
+                }
+                let photoURL = null;
+                if (image) {
+                    const storageRef = ref(
+                        storage,
+                        `productos/${objProduct.name}-${objProduct.short}`
+                    );
+                    await uploadBytes(storageRef, image.originFileObj);
+                    photoURL= await getDownloadURL(storageRef);
                 }
 
-                await updateDoc(docRef, objProduct);
+                await updateDoc(docRef, {...objProduct, image: photoURL});
 
                 this.products = this.products.map((item) =>
                     item.id === id ? { ...item, ...objProduct } : item
                 );
-                router.push("/products");
+                router.push("/productos");
             } catch (error) {
                 console.log(error.message);
                 return error.message;
@@ -149,10 +158,7 @@ export const useDatabaseStore = defineStore("database", {
             }
         },
         async getCategories() {
-            if (this.documents.length !== 0) {
-                return;
-            }
-
+            this.documents = [];
             this.loadingDoc = true;
             try {
                 const q = query(

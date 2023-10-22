@@ -1,6 +1,6 @@
 <script setup>
 //set name component of FormProduct
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useDatabaseStore } from "../stores/database";
 import { message } from "ant-design-vue";
 import { useUserStore } from "../stores/user";
@@ -8,7 +8,22 @@ import { useRoute } from "vue-router";
 
 const userStore = useUserStore();
 const databaseStore = useDatabaseStore();
-databaseStore.getCategories()
+let objProduct = reactive({
+    name: "",
+    stock: "",
+    price: "",
+    description: "",
+    available: true,
+    categories: [],
+});
+onMounted(async () => {
+  if (route.params.id) {
+    isEdit.value = true;
+    const productData = await databaseStore.readProduct(route.params.id);
+    Object.assign(objProduct, productData);
+  }
+  databaseStore.getCategories();
+});
 const isEdit = ref(false);
 const fileList = ref([]);
 const route = useRoute();
@@ -19,22 +34,14 @@ const options = databaseStore.documents.map((item, index) => {
     value: (index + 10).toString(36) + (index + 1),
   };
 });
-const objProduct = reactive({
-    name: "testing",
-    stock: "1",
-    price: "3",
-    description: "desc",
-    available: true,
-    categories: [],
-});
+
 
 const popupScroll = () => {
   console.log('popupScroll');
 };
 
 const createProduct = async (value) => {
-  console.log(value.name, route.params.id);
-  const error = await databaseStore.addProduct(value, image);
+  const error = await databaseStore.addProduct(value, fileList.value[0]);
   console.log(error);
   if (!error) {
     return message.success("Producto creado correctamente");
@@ -51,16 +58,11 @@ const createProduct = async (value) => {
 };
 
 const onFinish = async () => {
-  const error = await userStore.updateUser(
-    objProduct.name,
-    fileList.value[0]
-  );
-  await createProduct(objProduct);
-
-  if (!error) {
-    return message.success("Se actualizó tu información displayName");
+  if (route.params.id, isEdit.value) {
+    return await databaseStore.updateProduct( route.params.id,objProduct, fileList.value[0]);
+  } else {
+    return await createProduct(objProduct);
   }
-  message.error("Ocurrió un error al actualizar el perfil");
 };
 
 const handleRemove = (file) => {
@@ -110,8 +112,10 @@ const handleChange = (info) => {
 
 <template>
   <div class="container-view">
-    <div class="text-center mb-5" v-if="image">
-      <a-avatar :src="image" :size="150"></a-avatar>
+
+    <h1 class="text-center">{{ isEdit ? 'Editar' : 'Crear' }} producto</h1>
+    <div class="text-center mb-5" v-if="objProduct.image && isEdit">
+      <a-avatar :src="objProduct.image" :size="150"></a-avatar>
     </div>
     <a-form
         name="addform"
@@ -125,8 +129,9 @@ const handleChange = (info) => {
           list-type="picture"
           :before-upload="beforeUpload"
           @change="handleChange"
+          class='button-upload'
         >
-          <a-button class="mb-4">Subir fotodel producto</a-button>
+          <a-button class="mb-8">Subir fotodel producto</a-button>
         </a-upload>
         <a-form-item
             name="name"
@@ -205,7 +210,7 @@ const handleChange = (info) => {
                 :disabled="databaseStore.loading"
                 block
             >
-                Crear producto</a-button
+                {{ isEdit ? 'Editar' : 'Crear' }} producto</a-button
             >
         </a-form-item>
     </a-form>

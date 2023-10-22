@@ -15,6 +15,9 @@
 p{
     margin: 0;
 }
+.text-center{
+    text-align: center;
+}
 
 //itera hasta crear los margins y paddings asi "p-10" o "m-10" lo mismo con bottom, top, left, right
 @for $i from 0 through 100{

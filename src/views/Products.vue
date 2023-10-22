@@ -15,7 +15,7 @@
         :key="item.id">
         <div class="container-card" v-if='item.available'>
           <div class="flex align-center justify-center">
-            <a-avatar :src="item.image" alt="imagen producto"></a-avatar>
+            <a-avatar :src="item.image"></a-avatar>
             <p class="ml-8">{{item.name}}</p>
           </div>
           <div>
@@ -46,13 +46,14 @@ import { useUserStore } from "../stores/user";
 import { useDatabaseStore } from "../stores/database";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
-import { ref } from "vue";
-import FormProduct from './../components/FormProduct.vue'
+import { onMounted, ref } from "vue";
 
 const userStore = useUserStore();
 const databaseStore = useDatabaseStore();
 const router = useRouter();
-databaseStore.getAllProducts();
+onMounted(() => {
+  databaseStore.getAllProducts();
+});
 const showForm = ref(true);
 
 const hiddenForm = () => {
