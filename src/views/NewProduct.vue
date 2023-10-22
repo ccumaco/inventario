@@ -131,7 +131,7 @@ const handleChange = (info) => {
           @change="handleChange"
           class='button-upload'
         >
-          <a-button class="mb-8">Subir fotodel producto</a-button>
+          <a-button class="mb-8">Subir foto del producto</a-button>
         </a-upload>
         <a-form-item
             name="name"
