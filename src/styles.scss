@@ -1,0 +1,33 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+p{
+    margin: 0;
+}
+.container-cards{
+    margin-top: 20px;
+  }
+  .container-card{
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    align-items: center;
+    border: 1px solid rgb(83, 83, 216);
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  .container-view{
+    padding: 10px;
+  }
+  .button-create{
+    display: block;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    padding: 8px;
+    background: rgb(83, 83, 216);
+    border-radius: 5px;
+  }
