@@ -14,8 +14,11 @@
         v-for="item of databaseStore.products"
         :key="item.id">
         <div class="container-card" v-if='item.available'>
-          <p>{{item.name}}</p>
-            <div>
+          <div class="flex align-center justify-center">
+            <a-avatar :src="item.image" alt="imagen producto"></a-avatar>
+            <p class="ml-8">{{item.name}}</p>
+          </div>
+          <div>
               <a-popconfirm
                 title="¿Estás seguro que deseas eliminar?"
                 ok-text="Sí"
@@ -26,7 +29,7 @@
                 <img src="./../assets/icons/trash.svg" class="icon-trash" alt="trash" width="30">
               </a-popconfirm>
               <img
-                @click="router.push(`/categorias/${item.id}`)"
+                @click="router.push(`/editar-producto/${item.id}`)"
                 src="./../assets/icons/edit.svg"
                 class="icon-edit"
                 alt="trash"
@@ -57,7 +60,7 @@ const hiddenForm = () => {
 }
 
 const confirm = async (id) => {
-  const error = await databaseStore.deleteCategorie(id);
+  const error = await databaseStore.deleteProduct(id);
   if (!error) return message.success("Categoria eliminada con éxito ⭐");
   return message.error(error);
 };

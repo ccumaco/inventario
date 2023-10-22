@@ -3,13 +3,14 @@ import { useUserStore } from "./stores/user";
 import { useDatabaseStore } from "./stores/database";
 
 import Home from "./views/Home.vue";
-import EditarCategoria from "./views/NewCategorie.vue";
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
 import Perfil from "./views/Perfil.vue";
 import NotFound from "./views/NotFound.vue";
 import Categories from "./views/Categories.vue";
+import EditarCategoria from "./views/NewCategorie.vue";
 import Products from "./views/Products.vue";
+import EditarProducto from "./views/NewProduct.vue";
 
 const requireAuth = async (to, from, next) => {
     const userStore = useUserStore();
@@ -73,13 +74,13 @@ const routes = [
     },
     {
         path: "/crear-producto",
-        component: EditarCategoria,
+        component: EditarProducto,
         beforeEnter: requireAuth,
         name: "create-product", 
     },
     {
         path: "/editar-producto/:id",
-        component: EditarCategoria,
+        component: EditarProducto,
         beforeEnter: requireAuth,
         name: "edit-product", 
     },

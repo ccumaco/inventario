@@ -3,8 +3,51 @@
     padding: 0;
     box-sizing: border-box;
 }
+.flex{
+  display: flex;
+}
+.align-center{
+  align-items: center;
+}
+.justify-center{
+  justify-content: center;
+}
 p{
     margin: 0;
+}
+
+//itera hasta crear los margins y paddings asi "p-10" o "m-10" lo mismo con bottom, top, left, right
+@for $i from 0 through 100{
+    .m-#{$i}{
+        margin: #{$i}px;
+    }
+    .p-#{$i}{
+        padding: #{$i}px;
+    }
+    .mt-#{$i}{
+        margin-top: #{$i}px;
+    }
+    .mb-#{$i}{
+        margin-bottom: #{$i}px;
+    }
+    .ml-#{$i}{
+        margin-left: #{$i}px;
+    }
+    .mr-#{$i}{
+        margin-right: #{$i}px;
+    }
+    .pt-#{$i}{
+        padding-top: #{$i}px;
+    }
+    .pb-#{$i}{
+        padding-bottom: #{$i}px;
+    }
+    .pl-#{$i}{
+        padding-left: #{$i}px;
+    }
+    .pr-#{$i}{
+        padding-right: #{$i}px;
+    }
 }
 .container-cards{
     margin-top: 20px;

@@ -11,8 +11,10 @@ import {
 } from "firebase/firestore/lite";
 import { db } from "../firebaseConfig";
 import { defineStore } from "pinia";
-import { auth } from "../firebaseConfig";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { auth, storage } from "../firebaseConfig";
 import { nanoid } from "nanoid";
+
 import router from "../router";
 
 export const useDatabaseStore = defineStore("database", {
@@ -63,6 +65,89 @@ export const useDatabaseStore = defineStore("database", {
                 this.loadingDoc = false;
             }
         },
+        async addProduct(objProduct, image) {
+            this.loading = true;
+            console.log(objProduct, 'objProduct');
+            objProduct.short = nanoid(10);
+            try {
+                const storageRef = ref(
+                    storage,
+                    `productos/${objProduct.short}`
+                );
+                await uploadBytes(storageRef, image);
+                const photoURL = await getDownloadURL(storageRef);
+                await setDoc(doc(db, "products", objProduct.short), {...objProduct, image: photoURL});
+                this.products.push({
+                    ...objProduct,
+                    id: objProduct.short,
+                    image: photoURL
+                });
+            } catch (error) {
+                console.log(error);
+                return error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async readProduct(id) {
+            try {
+                const docRef = doc(db, "products", id);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    throw new Error("no existe el doc");
+                }
+
+                return docSnap.data();
+            } catch (error) {
+                console.log(error.message);
+            } finally {
+            }
+        },
+        async updateProduct(id, objProduct) {
+            this.loading = true;
+            try {
+                const docRef = doc(db, "products", id);
+
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    throw new Error("no existe el doc");
+                }
+
+                await updateDoc(docRef, objProduct);
+
+                this.products = this.products.map((item) =>
+                    item.id === id ? { ...item, ...objProduct } : item
+                );
+                router.push("/products");
+            } catch (error) {
+                console.log(error.message);
+                return error.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteProduct(id) {
+            this.loading = true;
+            try {
+                const docRef = doc(db, "products", id);
+
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    throw new Error("no existe el doc");
+                }
+
+                await deleteDoc(docRef);
+                this.products = this.products.filter(
+                    (item) => item.id !== id
+                );
+            } catch (error) {
+                // console.log(error);
+                return error.message;
+            } finally {
+                this.loading = false;
+            }
+        },
         async getCategories() {
             if (this.documents.length !== 0) {
                 return;
@@ -101,8 +186,8 @@ export const useDatabaseStore = defineStore("database", {
                     id: objCategorie.short,
                 });
             } catch (error) {
-                console.log(error.code);
-                return error.code;
+                console.log(error);
+                return error;
             } finally {
                 this.loading = false;
             }
@@ -166,7 +251,7 @@ export const useDatabaseStore = defineStore("database", {
                     (item) => item.id !== id
                 );
             } catch (error) {
-                // console.log(error.code);
+                // console.log(error);
                 return error.message;
             } finally {
                 this.loading = false;
